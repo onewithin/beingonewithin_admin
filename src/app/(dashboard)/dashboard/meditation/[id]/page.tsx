@@ -24,6 +24,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Loader from '@/components/loader'
 import { toast } from 'sonner'
 import { ConfirmDeleteDialog } from '@/components/deleteAlert'
+import HLSAudio from '@/components/hlsAudioPlayer'
 
 function MediationDetails() {
     const router = useRouter()
@@ -444,13 +445,14 @@ function MediationDetails() {
                             {fileName ? (
                                 // Show audio filename + audio player
                                 <div className="flex flex-col gap-2">
-                                    <audio controls className="w-full mt-1"
+                                    {/* <audio controls className="w-full mt-1"
                                         key={fileName}
                                         controlsList="nodownload noplaybackrate"
                                     >
                                         <source src={fileName} type="audio/mpeg" />
                                         Your browser does not support the audio element.
-                                    </audio>
+                                    </audio> */}
+                                    <HLSAudio fileName={fileName} />
                                     {/* Button to replace audio */}
                                     <button
                                         type="button"
