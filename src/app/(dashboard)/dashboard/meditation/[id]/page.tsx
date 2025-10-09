@@ -25,6 +25,7 @@ import Loader from '@/components/loader'
 import { toast } from 'sonner'
 import { ConfirmDeleteDialog } from '@/components/deleteAlert'
 import HLSAudio from '@/components/hlsAudioPlayer'
+import { format } from 'date-fns'
 
 function MediationDetails() {
     const router = useRouter()
@@ -37,6 +38,7 @@ function MediationDetails() {
     const [submitType, setSubmitType] = useState('')
     const [loading, setLoading] = useState(false)
     const [fileName, setFileName] = useState("")
+    const [meditation, setMeditation] = useState<any>(null)
     const [initalLoad, setInitalLoad] = useState(true)
     const [showCategory, setShowCategory] = useState(false)
     const [showedCategories, setShowCategories] = useState([])
@@ -273,6 +275,8 @@ function MediationDetails() {
                     setValue('duration', meditation.duration || '');
                     setValue('category', meditation.category || null);
                     setValue('subcategory', meditation.subcategory || null);
+                    setMeditation(meditation)
+
 
                     // Set selected type (audio, video, etc.)
                     setSelectedType(meditation.type || 'audio');
@@ -713,6 +717,13 @@ function MediationDetails() {
                 />
                 {errors.premium && <p className="text-red-500 text-sm mt-1">{errors.premium.message as string}</p>}
             </div>
+            {
+                !meditation?.active && meditation?.scheduledAt &&
+                <div className='my-2 mx-1'>
+                    <p className='text-sm text-green-500'>Scheduled on date: {format(new Date(meditation?.scheduledAt), 'EEEE, dd MMMM yyyy HH:mm:ss')}</p>
+                </div>
+            }
+
             {/* Action Buttons */}
             <div className="flex flex-col lg:flex-row justify-end gap-4 mt-12">
                 <ConfirmDeleteDialog onConfirm={handleDelete} trigger={<Button

@@ -20,6 +20,7 @@ import CreateCategory from './_components/create_category'
 import CreateSubCategory from './_components/create_subcategory'
 import CreateTags from './_components/create_tags'
 import { useRouter } from 'next/navigation'
+import { Calendar24 } from './_components/date-scheduler'
 
 function AddMeditation() {
     const router = useRouter()
@@ -94,7 +95,8 @@ function AddMeditation() {
             formData.append("duration", data.duration);
             formData.append("isPremium", submitType === "premium" ? "true" : "false");
             formData.append("active", "true");
-            formData.append("type", selectedType); // assuming selectedType is like "audio"
+            formData.append("active", "true");
+            formData.append("schedule", data.schedule); // assuming selectedType is like "audio"
 
             const audioFile = fileInputRef.current?.files?.[0];
             if (audioFile) {
@@ -132,6 +134,7 @@ function AddMeditation() {
         } finally {
             setLoading(false)
         }
+
     };
 
 
@@ -195,6 +198,10 @@ function AddMeditation() {
                 item.name.toLowerCase().includes(value.trim().toLowerCase())
             )
         )
+    }
+
+    const handleSchedule = (schedule: any) => {
+        setValue('schedule', schedule.toString())
     }
 
 
@@ -549,6 +556,8 @@ function AddMeditation() {
                         ))
                     }
                 </div>
+                <Calendar24 handleSchedule={handleSchedule} errors={errors} />
+                <input type="hidden" {...register('schedule')} />
             </div>
             {/* Action Buttons */}
             <div className="flex flex-col lg:flex-row justify-end gap-4 mt-12">

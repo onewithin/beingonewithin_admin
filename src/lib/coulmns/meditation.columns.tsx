@@ -83,6 +83,34 @@ export const mediationColumns: ColumnDef<any>[] = [
         },
     },
     {
+        accessorKey: "active",
+        header: ({ column }) => (
+            <div className="text-[#2B7272]">Active</div>
+        ),
+        cell: ({ row }) => {
+            const status: string = row.getValue("active")
+            const color = status ? "text-green-600" : status === "inactive" ? "text-yellow-600" : "text-red-600"
+            return <div className={`capitalize font-semibold min-w-28 px-1 ${color}`}>{status ? "Active" : "Inactive"}</div>
+        },
+    },
+    {
+        accessorKey: "scheduledAt",
+        header: () => <div className="text-[#2B7272]">Scheduled Date</div>,
+        cell: ({ row }) => {
+            const scheduledAt: any = row.getValue("scheduledAt");
+            if (!scheduledAt) return <div>Not Scheduled</div>; // handle missing date
+
+            const date = new Date(scheduledAt);
+            return (
+                <div>
+                    {date.toLocaleDateString()}{" "}
+                    {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
+            );
+        },
+
+    },
+    {
         accessorKey: "createdAt",
         header: () => <div className="text-[#2B7272]">Added Date</div>,
         cell: ({ row }) => {
