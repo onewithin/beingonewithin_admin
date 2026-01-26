@@ -53,7 +53,7 @@ export const mediationColumns: ColumnDef<any>[] = [
                 className={`border font-rubik-400 rounded-2xl mt-1 capitalize`}
             >
                 <Volume2 className="h-8 w-8" />
-                {row.original.type}
+                {row.original.type || "Audio"}
             </Badge>
         ),
     },

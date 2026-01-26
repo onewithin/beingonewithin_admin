@@ -1,36 +1,37 @@
-type Method = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+import { getSession } from "next-auth/react";
+
+type Method = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
 interface FetcherOptions {
   method?: Method;
   data?: any;
-  token?: string;
   headers?: Record<string, string>;
   params?: Record<string, string | number | boolean | undefined | null>;
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3010/api';
-
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3010/api";
 
 export async function fetcher<T>(
   url: string,
-  { method = 'GET', data, token, headers = {}, params }: FetcherOptions = {}
+  { method = "GET", data, headers = {}, params }: FetcherOptions = {},
 ): Promise<T> {
-  let fullUrl = url.startsWith('http') ? url : `${BASE_URL}${url}`;
+  let fullUrl = url.startsWith("http") ? url : `${BASE_URL}${url}`;
 
-  console.log(fullUrl)
-
-  // Append query params to the URL
   if (params) {
     const query = new URLSearchParams(
       Object.entries(params)
-        .filter(([_, value]) => value !== undefined && value !== null)
-        .map(([key, value]) => [key, String(value)])
+        .filter(([_, v]) => v != null)
+        .map(([k, v]) => [k, String(v)]),
     ).toString();
 
     if (query) {
-      fullUrl += fullUrl.includes('?') ? `&${query}` : `?${query}`;
+      fullUrl += fullUrl.includes("?") ? `&${query}` : `?${query}`;
     }
   }
+
+  const session: any = await getSession();
+  const token = session?.user?.backendToken;
 
   const isFormData = data instanceof FormData;
 
@@ -42,26 +43,19 @@ export async function fetcher<T>(
     },
   };
 
-  if (!isFormData) {
-    config.headers = {
-      'Content-Type': 'application/json',
-      ...config.headers,
-    };
-    if (data) {
-      config.body = JSON.stringify(data);
-    }
-  } else {
-    if (data) {
-      config.body = data;
-    }
+  if (!isFormData && data) {
+    config.headers = { "Content-Type": "application/json", ...config.headers };
+    config.body = JSON.stringify(data);
+  } else if (isFormData) {
+    config.body = data;
   }
 
   const res = await fetch(fullUrl, config);
 
   if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || `Request failed with status ${res.status}`);
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `Request failed ${res.status}`);
   }
 
-  return res.json() as Promise<T>;
+  return res.json();
 }

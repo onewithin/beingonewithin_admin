@@ -6,6 +6,7 @@ interface HLSAudioProps {
 }
 
 const HLSAudio = ({ fileName }: HLSAudioProps) => {
+    console.log(fileName)
     const audioRef = useRef<HTMLAudioElement>(null);
     const hlsRef = useRef<Hls | null>(null);
     const [error, setError] = useState<string>("");
@@ -92,7 +93,7 @@ const HLSAudio = ({ fileName }: HLSAudioProps) => {
     }, [fileName]);
 
     return (
-        <div className="w-full">
+        <div className="w-full">ac
             {error && (
                 <div className="text-red-500 text-sm mb-2">{error}</div>
             )}
