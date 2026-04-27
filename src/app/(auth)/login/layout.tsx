@@ -16,7 +16,7 @@ export default function Login({ children }: { children: ReactNode }) {
                 {children}
             </div>
             <div className='w-1/2 lg:flex justify-center items-center hidden'>
-                <div className="h-[600px] w-[600px]  relative">
+                <div className="h-[500px] w-[500px]  relative">
                     <Image
                         src="/assets/logo1.png"
                         alt="logo"
