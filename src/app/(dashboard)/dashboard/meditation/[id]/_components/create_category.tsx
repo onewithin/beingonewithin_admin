@@ -12,11 +12,11 @@ import { Button } from '@/components/ui/button'
 import { HexColorPicker } from 'react-colorful'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { Images, Plus } from 'lucide-react'
+import { ImagePlus, Plus, X } from 'lucide-react'
 import { useForm } from 'react-hook-form'
-import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
 import { fetcher } from '@/lib/fetcher'
 import { categoryApi } from '@/lib/api'
+import { toast } from 'sonner'
 
 type FormData = {
     title: string
@@ -24,68 +24,94 @@ type FormData = {
 
 function CreateCategory({ addCategory }: { addCategory: (item: any) => void }) {
     const [open, setOpen] = useState(false)
-    const [color, setColor] = useState('')
-    const [emoji, setEmoji] = useState('')
+    const [color, setColor] = useState('#2b7272')
     const [loading, setLoading] = useState(false)
     const fileInputRef = useRef<HTMLInputElement | null>(null)
+    const iconInputRef = useRef<HTMLInputElement | null>(null)
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-    const inputRef = useRef<HTMLInputElement | null>(null);
-
-    const handleClick = () => {
-        fileInputRef.current?.click()
-    }
+    const [iconPreviewUrl, setIconPreviewUrl] = useState<string | null>(null)
+    const inputRef = useRef<HTMLInputElement | null>(null)
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
-        if (file) {
-            const url = URL.createObjectURL(file)
-            setPreviewUrl(url)
-        }
+        if (file) setPreviewUrl(URL.createObjectURL(file))
     }
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<FormData>()
+    const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) setIconPreviewUrl(URL.createObjectURL(file))
+    }
+
+    const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>()
+
+    const { ref: titleRef, ...titleRest } = register('title', { required: 'Category name is required' })
 
     const onSubmit = async (data: FormData) => {
         try {
             setLoading(true)
-            const formData = new FormData();
+            const formData = new FormData()
+            formData.append('name', data.title)
+            formData.append('color', color)
+            if (fileInputRef.current?.files?.[0]) formData.append('backgroundImage', fileInputRef.current.files[0])
+            if (iconInputRef.current?.files?.[0]) formData.append('icon', iconInputRef.current.files[0])
 
-            formData.append('name', data.title);
-            formData.append('icon', emoji);
-            formData.append('color', color);
-
-            if (fileInputRef.current?.files?.[0]) {
-                formData.append('backgroundImage', fileInputRef.current.files[0]);
-            }
-
-            const res = await fetcher(categoryApi.createCategory, { method: 'POST', data: formData });
+            const res = await fetcher(categoryApi.createCategory, { method: 'POST', data: formData })
             if (res) {
                 addCategory(res)
                 setOpen(false)
+                reset()
+                setPreviewUrl(null)
+                setIconPreviewUrl(null)
+                setColor('#2b7272')
+                toast.success('Category created successfully')
             }
-
-        }
-        catch (error) {
+        } catch (error) {
             console.log(error)
         } finally {
             setLoading(false)
         }
     }
 
-    const onEmojiClick = (emojiData: EmojiClickData) => {
-        setEmoji(emojiData.emoji)
-    }
-
     useEffect(() => {
-        if (open && inputRef.current) {
-            inputRef.current.focus();
-        }
-    }, [open]);
+        if (open && inputRef.current) inputRef.current.focus()
+    }, [open])
 
+    const UploadZone = ({
+        label, previewUrl, onClear, onClickZone, accept, inputRef, onChange
+    }: {
+        label: string
+        previewUrl: string | null
+        onClear: () => void
+        onClickZone: () => void
+        accept: string
+        inputRef: React.RefObject<HTMLInputElement | null>
+        onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+    }) => (
+        <div className="space-y-1.5">
+            <Label className="text-sm font-medium text-gray-700 font-rubik-400">{label}</Label>
+            {previewUrl ? (
+                <div className="relative rounded-xl overflow-hidden border border-gray-200 bg-gray-50 h-32 flex items-center justify-center">
+                    <img src={previewUrl} alt={label} className="max-h-28 max-w-full object-contain" />
+                    <button
+                        type="button"
+                        onClick={onClear}
+                        className="absolute top-2 right-2 bg-white border border-gray-200 shadow-sm rounded-full w-6 h-6 flex items-center justify-center text-gray-500 hover:text-red-500 hover:border-red-300 transition-colors"
+                    >
+                        <X size={12} />
+                    </button>
+                </div>
+            ) : (
+                <div
+                    onClick={onClickZone}
+                    className="border-2 border-dashed border-gray-200 rounded-xl h-32 flex flex-col items-center justify-center cursor-pointer hover:border-[#2b7272] hover:bg-[#f0fafa] transition-colors group"
+                >
+                    <ImagePlus className="w-7 h-7 text-gray-300 group-hover:text-[#2b7272] mb-2 transition-colors" />
+                    <p className="text-xs text-gray-400 group-hover:text-[#2b7272] transition-colors font-rubik-400">Click to upload</p>
+                </div>
+            )}
+            <input type="file" accept={accept} ref={inputRef} onChange={onChange} className="hidden" />
+        </div>
+    )
 
     return (
         <div>
@@ -96,115 +122,89 @@ function CreateCategory({ addCategory }: { addCategory: (item: any) => void }) {
                     </Button>
                 </DialogTrigger>
 
-                <DialogContent
-                    className="sm:max-w-[800px] max-h-[80vh] overflow-auto hide-scrollbar"
-                >
+                <DialogContent className="sm:max-w-[520px] p-0 overflow-hidden rounded-2xl">
+                    <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
+                        <DialogTitle className="text-lg font-semibold text-gray-900 font-rubik-400">Create New Category</DialogTitle>
+                        <p className="text-sm text-gray-500 font-rubik-400 mt-0.5">Fill in the details below to add a new meditation category.</p>
+                    </DialogHeader>
 
-                    <form noValidate className="font-rubik-400">
-                        <div className="">
-                            <h4 className="text-base font-light text-[#000000] mb-2">Background Image</h4>
-                            <div className="flex w-full h-full">
-                                <div
-                                    onClick={handleClick}
-                                    className="border-2 border-dashed border-[#D9D9D9] flex flex-col justify-center items-center rounded-lg p-8 text-center bg-[#ffffff] w-full cursor-pointer"
-                                    role="button"
-                                    tabIndex={0}
-                                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleClick() }}
-                                    aria-label="Upload background image"
-                                >
-                                    <Images className="w-8 h-8 mx-auto mb-4" color={"#777777"} />
-                                    <p className="text-[#777777] mb-2 font-rubik-400 text-[12px]">
-                                        Drop here or Browse
-                                        <br />
-                                        images from device
-                                    </p>
-                                </div>
-                            </div>
+                    <form noValidate onSubmit={handleSubmit(onSubmit)} className="px-6 py-5 space-y-5 font-rubik-400 max-h-[70vh] overflow-y-auto hide-scrollbar">
 
-                            {previewUrl && (
-                                <div className="relative mt-4 inline-block">
-                                    <img
-                                        src={previewUrl}
-                                        alt="Preview"
-                                        className="max-w-full max-h-24 rounded-md object-contain"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setPreviewUrl(null)}
-                                        className="absolute top-1 right-1 bg-gray-200 hover:bg-gray-300 rounded-full w-6 h-6 flex items-center justify-center text-gray-700"
-                                        aria-label="Remove image"
-                                    >
-                                        ×
-                                    </button>
-                                </div>
-                            )}
-
-                            <input
-                                type="file"
-                                accept="image/*"
-                                ref={fileInputRef}
-                                onChange={handleFileChange}
-                                className="hidden"
-                            />
-                        </div>
-
-                        <div className="my-3">
-                            <Label htmlFor="title" className="mb-1 text-[14px] font-light text-base">
-                                Category Name
-                            </Label>
+                        {/* Category Name */}
+                        <div className="space-y-1.5">
+                            <Label htmlFor="title" className="text-sm font-medium text-gray-700">Category Name</Label>
                             <Input
                                 id="title"
+                                ref={(el) => { titleRef(el); (inputRef as React.MutableRefObject<HTMLInputElement | null>).current = el }}
                                 type="text"
-                                placeholder="Enter the category name"
-                                {...register('title', { required: 'Title is required' })}
-                                aria-invalid={errors.title ? 'true' : 'false'}
-                                aria-describedby="title-error"
+                                placeholder="e.g. Sleep, Stress Relief…"
+                                className="rounded-lg border-gray-200 focus-visible:ring-[#2b7272] h-10"
+                                {...titleRest}
                             />
-                            {errors.title && (
-                                <p id="title-error" className="text-red-600 text-sm mt-1">
-                                    {errors.title.message}
-                                </p>
-                            )}
+                            {errors.title && <p className="text-red-500 text-xs mt-0.5">{errors.title.message}</p>}
                         </div>
 
-                        <div className="mt-4 space-y-2">
-                            <Label className="font-rubik-400 text-base">Pick a color</Label>
-                            <HexColorPicker color={color} onChange={setColor} className="w-full!" />
-                            <div className="flex items-center gap-2 mt-2">
-                                <div
-                                    className="w-6 h-6 rounded-full border"
-                                    style={{ backgroundColor: color }}
-                                />
-                                <span className="text-sm text-muted-foreground">{color}</span>
+                        {/* Images side by side */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <UploadZone
+                                label="Background Image"
+                                previewUrl={previewUrl}
+                                onClear={() => { setPreviewUrl(null); if (fileInputRef.current) fileInputRef.current.value = '' }}
+                                onClickZone={() => fileInputRef.current?.click()}
+                                accept="image/*"
+                                inputRef={fileInputRef}
+                                onChange={handleFileChange}
+                            />
+                            <UploadZone
+                                label="Icon Image"
+                                previewUrl={iconPreviewUrl}
+                                onClear={() => { setIconPreviewUrl(null); if (iconInputRef.current) iconInputRef.current.value = '' }}
+                                onClickZone={() => iconInputRef.current?.click()}
+                                accept="image/*"
+                                inputRef={iconInputRef}
+                                onChange={handleIconChange}
+                            />
+                        </div>
+
+                        {/* Color Picker */}
+                        <div className="space-y-2">
+                            <Label className="text-sm font-medium text-gray-700">Brand Color</Label>
+                            <div className="flex gap-4 items-start">
+                                <HexColorPicker color={color} onChange={setColor} style={{ width: '160px', height: '140px' }} />
+                                <div className="flex flex-col gap-2 justify-start pt-1">
+                                    <div className="w-16 h-16 rounded-xl border border-gray-200 shadow-sm" style={{ backgroundColor: color }} />
+                                    <div className="flex items-center gap-1.5 border border-gray-200 rounded-lg px-2 py-1.5">
+                                        <span className="text-xs text-gray-400 uppercase font-mono">#</span>
+                                        <input
+                                            type="text"
+                                            value={color.replace('#', '')}
+                                            onChange={(e) => setColor('#' + e.target.value.replace('#', '').slice(0, 6))}
+                                            className="text-xs w-16 outline-none font-mono text-gray-700 bg-transparent"
+                                            maxLength={6}
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                    </form>
 
-                        <div className="mt-6 space-y-2">
-                            <Label className="text-base font-rubik-400">Pick an icon</Label>
-                            {emoji && < div className="text-base font-rubik-400 mb-2">Selected: {emoji}</div>}
-
-                            <div className="w-full h-[500px]  border rounded-md">
-                                <EmojiPicker
-                                    onEmojiClick={onEmojiClick}
-                                    searchDisabled={false}
-                                    skinTonesDisabled={true}
-                                    className="w-full! h-full!"
-                                />
-                            </div>
-                        </div>
-
+                    {/* Footer */}
+                    <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
+                        <Button type="button" variant="outline" onClick={() => setOpen(false)} className="rounded-lg font-rubik-400" disabled={loading}>
+                            Cancel
+                        </Button>
                         <Button
                             type="button"
                             onClick={handleSubmit(onSubmit)}
                             disabled={loading}
-                            className="bg-[#2b7272] my-3  hover:bg-[#1f5d57] text-white px-3 font-rubik-400"
+                            className="bg-[#2b7272] hover:bg-[#1f5d57] text-white rounded-lg px-6 font-rubik-400"
                         >
-                            {loading ? 'Saving...' : 'Save Category'}
+                            {loading ? 'Saving…' : 'Save Category'}
                         </Button>
-                    </form>
+                    </div>
                 </DialogContent>
             </Dialog>
-        </div >
+        </div>
     )
 }
 

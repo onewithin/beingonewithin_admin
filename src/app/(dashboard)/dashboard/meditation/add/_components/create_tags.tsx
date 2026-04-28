@@ -16,6 +16,7 @@ import { Plus } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { fetcher } from '@/lib/fetcher'
 import { categoryApi } from '@/lib/api'
+import { toast } from 'sonner'
 
 type FormData = {
     title: string
@@ -49,6 +50,7 @@ function CreateTags({ addCategory }: { addCategory: (item: any) => void }) {
             if (res) {
                 addCategory(res)
                 setOpen(false)
+                toast.success('Tag created successfully')
             }
         } catch (error) {
             console.error(error)

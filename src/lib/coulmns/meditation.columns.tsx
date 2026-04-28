@@ -42,8 +42,8 @@ export const mediationColumns: ColumnDef<any>[] = [
         header: () => <div className="text-[#2B7272]">Duration</div>,
         cell: ({ row }) => {
             const totalSeconds = Number(row.original.duration)
-            const minutes = String(Math.floor(totalSeconds)).padStart(2, "0")
-            const seconds = String(Math.round((totalSeconds % 1) * 60)).padStart(2, "0")
+            const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0")
+            const seconds = String(totalSeconds % 60).padStart(2, "0")
             return `${minutes}:${seconds}`
         },
     },

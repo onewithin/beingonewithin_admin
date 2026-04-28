@@ -11,6 +11,9 @@ export const categoryApi = {
   createCategory: "/category",
   createSubCategory: "/subcategory",
   createTag: "/tags",
+  deleteCategory: (id: string) => `/category/${id}`,
+  deleteSubCategory: (id: string) => `/subcategory/${id}`,
+  deleteTag: (id: string) => `/tags/${id}`,
 };
 
 export const meditationApis = {

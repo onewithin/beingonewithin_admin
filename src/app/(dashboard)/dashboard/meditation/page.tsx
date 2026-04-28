@@ -131,18 +131,18 @@ export default function MeditationTable() {
 
             {/* Toolbar */}
             <div className="py-4 font-rubik-400 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                <div className="flex flex-col md:flex-row gap-3">
-                    <div className="relative">
+                <div className="flex flex-col sm:flex-row flex-wrap gap-3">
+                    <div className="relative w-full sm:w-64">
                         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#aaa]" />
                         <Input
                             placeholder="Search title..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="pl-8 font-rubik-400 w-64 bg-white"
+                            className="pl-8 font-rubik-400 w-full bg-white"
                         />
                     </div>
                     <Select value={isPremium} onValueChange={(v) => { setIsPremium(v); setPage(1) }}>
-                        <SelectTrigger className="w-44 bg-white">
+                        <SelectTrigger className="w-full sm:w-44 bg-white">
                             <SelectValue placeholder="Access" />
                         </SelectTrigger>
                         <SelectContent>
@@ -163,7 +163,7 @@ export default function MeditationTable() {
                                 variant="outline"
                                 role="combobox"
                                 aria-expanded={categoryOpen}
-                                className="w-44 bg-white justify-between font-rubik-400 font-normal"
+                                className="w-full sm:w-44 bg-white justify-between font-rubik-400 font-normal"
                             >
                                 <span className="truncate">
                                     {categoryId
@@ -221,7 +221,7 @@ export default function MeditationTable() {
                         </PopoverContent>
                     </Popover>
                     <Select value={sortValue?.field ? `${sortValue.field}-${sortValue.order}` : ""} onValueChange={handleSort}>
-                        <SelectTrigger className="w-44 bg-white">
+                        <SelectTrigger className="w-full sm:w-44 bg-white">
                             <SelectValue placeholder="Sort By" />
                         </SelectTrigger>
                         <SelectContent>
@@ -240,7 +240,7 @@ export default function MeditationTable() {
                         </SelectContent>
                     </Select>
                 </div>
-                <Button className="font-rubik-400 bg-[#2B7272] py-3 text-white hover:bg-[#1f5d57]">
+                <Button className="font-rubik-400 bg-[#2B7272] py-3 text-white hover:bg-[#1f5d57] w-full md:w-auto">
                     <Link href="/dashboard/meditation/add">Add Meditation</Link>
                 </Button>
             </div>
