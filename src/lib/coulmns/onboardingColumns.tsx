@@ -62,7 +62,10 @@ export const onboardingColumns: ColumnDef<any>[] = [
         header: () => <div className="text-[#2B7272]">Added Date</div>,
         cell: ({ row }) => {
             const date = new Date(row.getValue("createdAt"))
-            return <div className="whitespace-nowrap text-sm">{date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+            const dd = String(date.getDate()).padStart(2, '0')
+            const mm = String(date.getMonth() + 1).padStart(2, '0')
+            const yyyy = date.getFullYear()
+            return <div className="whitespace-nowrap text-sm">{`${dd}/${mm}/${yyyy}`} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
         },
     },
 ];

@@ -1,5 +1,6 @@
 export const apiUser = {
   getUser: "/admin/users",
+  getUserById: (id: string) => `/admin/users/${id}`,
   deactivateUsers: (id: string) => `/admin/users/${id}/deactivate`,
   activeUser: (id: string) => `/admin/users/${id}/activate`,
 };

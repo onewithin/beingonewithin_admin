@@ -12,8 +12,8 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
-    domains: ['static.vecteezy.com'],
+    domains: ["static.vecteezy.com", "lh3.googleusercontent.com"],
   },
-}
+};
 
-export default nextConfig
+export default nextConfig;

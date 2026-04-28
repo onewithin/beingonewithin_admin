@@ -17,28 +17,32 @@ export type User = {
 export const columns: ColumnDef<User>[] = [
     {
         accessorKey: "name",
-        header: ({ column }) => (
+        size: 90,
+        header: () => (
             <div className="text-[#2B7272]">Name</div>
         ),
-        cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
+        cell: ({ row }) => <div className="font-medium truncate max-w-[130px]">{row.getValue("name")}</div>,
     },
     {
         accessorKey: "email",
-        header: ({ column }) => (
+        size: 130,
+        header: () => (
             <div className="text-[#2B7272]">Email</div>
         ),
-        cell: ({ row }) => <div className="lowercase"> {row.getValue("email")}</div>,
+        cell: ({ row }) => <div className="lowercase text-sm truncate max-w-[130px]">{row.getValue("email")}</div>,
     },
     {
         accessorKey: "signupMethod",
-        header: ({ column }) => (
+        size: 140,
+        header: () => (
             <div className="text-[#2B7272]">Signup Method</div>
         ),
-        cell: ({ row }) => <div className="capitalize">{row.getValue("signupMethod")}</div>,
+        cell: ({ row }) => <div className="capitalize text-sm">{row.getValue("signupMethod")}</div>,
     },
     {
         accessorKey: "subscriptionType",
-        header: ({ column }) => (
+        size: 130,
+        header: () => (
             <div className="text-[#2B7272]">Subscription</div>
         ),
         cell: ({ row }) => {
@@ -60,23 +64,28 @@ export const columns: ColumnDef<User>[] = [
     },
     {
         accessorKey: "createdAt",
-        header: ({ column }) => (
+        size: 160,
+        header: () => (
             <div className="text-[#2B7272]">Created At</div>
         ),
         cell: ({ row }) => {
             const date = new Date(row.getValue("createdAt"))
-            return <div>{date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+            const dd = String(date.getDate()).padStart(2, '0')
+            const mm = String(date.getMonth() + 1).padStart(2, '0')
+            const yyyy = date.getFullYear()
+            return <div className="whitespace-nowrap text-sm">{`${dd}/${mm}/${yyyy}`} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
         },
     },
     {
         accessorKey: "active",
-        header: ({ column }) => (
+        size: 100,
+        header: () => (
             <div className="text-[#2B7272]">Status</div>
         ),
         cell: ({ row }) => {
             const status: string = row.getValue("active")
             const color = status ? "text-green-600" : status === "inactive" ? "text-yellow-600" : "text-red-600"
-            return <div className={`capitalize font-semibold ${color}`}>{status ? "Active" : "Inactive"}</div>
+            return <div className={`capitalize font-semibold text-sm ${color}`}>{status ? "Active" : "Inactive"}</div>
         },
     },
 ]
