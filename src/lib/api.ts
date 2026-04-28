@@ -26,6 +26,9 @@ export const meditationApis = {
 export const thoughtsApi = {
   create: "/thought",
   getAll: "/thought",
+  getById: (id: string) => `/thought/${id}`,
+  update: (id: string) => `/thought/${id}`,
+  delete: (id: string) => `/thought/${id}`,
 };
 
 export const policyApi = {

@@ -56,6 +56,16 @@ function AddMeditation() {
         if (file) {
             setFileName(file.name)
             setValue("file", file)
+
+            const audio = new Audio()
+            audio.src = URL.createObjectURL(file)
+            audio.addEventListener('loadedmetadata', () => {
+                const totalSeconds = Math.round(audio.duration)
+                const mins = String(Math.floor(totalSeconds / 60)).padStart(2, '0')
+                const secs = String(totalSeconds % 60).padStart(2, '0')
+                setValue('duration', `${mins}:${secs}`)
+                URL.revokeObjectURL(audio.src)
+            })
         }
     }
 
@@ -211,7 +221,9 @@ function AddMeditation() {
                             <Input
                                 id="duration"
                                 type="text"
-                                placeholder="Enter duration in minutes eg. 09:08"
+                                placeholder="Auto-detected from audio (mm:ss)"
+                                readOnly
+                                className="bg-gray-50 cursor-not-allowed"
                                 {...register("duration", {
                                     required: "Duration is required",
                                     pattern: {

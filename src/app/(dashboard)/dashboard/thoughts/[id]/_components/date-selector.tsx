@@ -13,25 +13,35 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 
-export function Calendar24({ handleSchedule, errors }: { handleSchedule: (schedule: Date) => void, errors: any }) {
+export function Calendar24({
+    handleSchedule,
+    errors,
+    defaultDate,
+}: {
+    handleSchedule: (schedule: Date) => void
+    errors: any
+    defaultDate?: Date
+}) {
     const [open, setOpen] = React.useState(false)
-    const [date, setDate] = React.useState<Date | undefined>(undefined)
+    const [date, setDate] = React.useState<Date | undefined>(defaultDate)
 
-    // Calculate 1 hour after current time in HH:mm:ss format
-    const now = new Date()
-    const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000)
     const pad = (num: number) => num.toString().padStart(2, "0")
-    const timeString = `${pad(oneHourLater.getHours())}:${pad(oneHourLater.getMinutes())}:${pad(
-        oneHourLater.getSeconds(),
-    )}`
 
     const today = new Date()
     today.setHours(0, 0, 0, 0)
-
+    const now = new Date()
     const currentTimeStr = now.toTimeString().split(" ")[0]
     const minTime = date && date.toDateString() === today.toDateString() ? currentTimeStr : "00:00:00"
 
-    const [time, setTime] = React.useState(timeString)
+    const getInitialTime = () => {
+        if (defaultDate) {
+            return `${pad(defaultDate.getHours())}:${pad(defaultDate.getMinutes())}:${pad(defaultDate.getSeconds())}`
+        }
+        const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000)
+        return `${pad(oneHourLater.getHours())}:${pad(oneHourLater.getMinutes())}:${pad(oneHourLater.getSeconds())}`
+    }
+
+    const [time, setTime] = React.useState(getInitialTime)
 
     React.useEffect(() => {
         if (date && time) {
@@ -40,19 +50,17 @@ export function Calendar24({ handleSchedule, errors }: { handleSchedule: (schedu
             scheduled.setHours(hours)
             scheduled.setMinutes(minutes)
             scheduled.setSeconds(seconds)
-
             handleSchedule(scheduled)
         }
     }, [date, time])
 
     return (
         <>
-            <Label htmlFor="duration" className="text-[14px] font-light text-base mb-1 mt-8">
+            <Label className="text-[14px] font-light text-base mb-1 mt-8">
                 Schedule Posting
             </Label>
             <div className="flex gap-4 font-rubik-400">
                 <div className="flex flex-col gap-3 flex-1">
-                    {/* Date picker popover */}
                     <Popover open={open} onOpenChange={setOpen}>
                         <PopoverTrigger asChild>
                             <Button
@@ -60,7 +68,9 @@ export function Calendar24({ handleSchedule, errors }: { handleSchedule: (schedu
                                 id="date-picker"
                                 className="w-full justify-between font-normal"
                             >
-                                {date ? `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()}` : "Select date"}
+                                {date
+                                    ? `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()}`
+                                    : "Select date"}
                                 <ChevronDownIcon />
                             </Button>
                         </PopoverTrigger>
@@ -69,15 +79,17 @@ export function Calendar24({ handleSchedule, errors }: { handleSchedule: (schedu
                                 mode="single"
                                 selected={date}
                                 captionLayout="dropdown"
-                                onSelect={(date) => {
-                                    setDate(date)
+                                onSelect={(d) => {
+                                    setDate(d)
                                     setOpen(false)
                                 }}
                                 disabled={{ before: today }}
                             />
                         </PopoverContent>
                     </Popover>
-                    {errors.schedule && <p className="text-red-500 text-sm ">{errors.schedule.message as string}</p>}
+                    {errors.schedule && (
+                        <p className="text-red-500 text-sm">{errors.schedule.message as string}</p>
+                    )}
                 </div>
                 <div className="flex flex-col gap-3 flex-1">
                     <Input

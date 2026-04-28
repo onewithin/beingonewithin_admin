@@ -47,22 +47,12 @@ export const thoughtColumns: ColumnDef<any>[] = [
             if (!val) return <span className="italic text-gray-400">N/A</span>;
 
             const date = new Date(val);
+            const dd = String(date.getDate()).padStart(2, '0');
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const yyyy = date.getFullYear();
             return (
                 <div className="flex items-center gap-2">
-                    {date.toLocaleDateString()}{" "}
-                    {date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                </div>
-            );
-        },
-    },
-    {
-        accessorKey: "createdAt",
-        header: () => <div className="text-[#2B7272]">Created At</div>,
-        cell: ({ row }) => {
-            const date = new Date(row.original.createdAt);
-            return (
-                <div>
-                    {date.toLocaleDateString()}{" "}
+                    {`${dd}/${mm}/${yyyy}`}{" "}
                     {date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </div>
             );
