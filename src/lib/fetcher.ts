@@ -1,4 +1,4 @@
-import { getSession } from "next-auth/react";
+import { getSession, signOut } from "next-auth/react";
 
 type Method = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
@@ -53,6 +53,9 @@ export async function fetcher<T>(
   const res = await fetch(fullUrl, config);
 
   if (!res.ok) {
+    if (res.status === 401 || res.status === 403) {
+      signOut({ callbackUrl: "/login" });
+    }
     const err = await res.json().catch(() => ({}));
     throw new Error(err.message || `Request failed ${res.status}`);
   }
