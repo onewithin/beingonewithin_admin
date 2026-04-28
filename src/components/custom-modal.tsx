@@ -37,17 +37,17 @@ export function CustomModal({
                 {trigger}
             </DialogTrigger>
 
-            <DialogContent>
-                <DialogHeader>
+            <DialogContent className="flex flex-col max-h-[90vh] p-0 gap-0 sm:max-w-2xl max-w-5xl">
+                <DialogHeader className="px-6 pt-6 pb-3 border-b flex-shrink-0">
                     <DialogTitle>{title}</DialogTitle>
                     {description && (
                         <DialogDescription>{description}</DialogDescription>
                     )}
                 </DialogHeader>
 
-                <div className="py-4">{children}</div>
+                <div className="flex-1 overflow-y-auto hide-scrollbar px-6 py-4">{children}</div>
 
-                {footer && <div className="pt-4">{footer}</div>}
+                {footer && <div className="px-6 pb-5 pt-3 border-t flex-shrink-0">{footer}</div>}
             </DialogContent>
         </Dialog>
     );

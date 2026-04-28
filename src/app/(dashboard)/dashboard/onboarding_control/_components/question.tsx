@@ -71,11 +71,10 @@ export default function QuestionWithOptionsAndTags({
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
-            if (
-                dropdownRefs.current.every(
-                    (ref) => ref && !ref.contains(event.target as Node)
-                )
-            ) {
+            const clickedInsideAny = dropdownRefs.current.some(
+                (ref) => ref && ref.contains(event.target as Node)
+            );
+            if (!clickedInsideAny) {
                 setShowTagsIndexes([]);
             }
         }
@@ -196,7 +195,7 @@ export default function QuestionWithOptionsAndTags({
     return (
         <form
             onSubmit={handleSubmit(onFormSubmit)}
-            className="font-rubik-400 space-y-6 max-w-xl mx-auto"
+            className="font-rubik-400 space-y-4  mx-auto"
             noValidate
         >
             {/* Question */}
@@ -220,7 +219,7 @@ export default function QuestionWithOptionsAndTags({
 
             {/* Options with tags */}
             {Array.from({ length: 4 }).map((_, index) => (
-                <div key={index}>
+                <div key={index} className="rounded-lg border border-gray-100 bg-gray-50/60 p-3 space-y-2">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 items-start">
                         <div>
                             <Label htmlFor={`optionText-${index}`} className="text-[14px] font-light text-[#484848]">
@@ -292,11 +291,11 @@ export default function QuestionWithOptionsAndTags({
                     </div>
 
                     {/* Selected tags */}
-                    <div className="flex flex-wrap gap-2 my-2">
+                    <div className="flex flex-wrap gap-1.5">
                         {(getValues(`options.${index}.tags`) ?? []).map((tag: Tag, tagIndex: number) => (
                             <span
                                 key={tagIndex}
-                                className="font-rubik-400 inline-flex items-center text-sm text-[#2b7272] bg-white rounded-full border border-[#2b7272] px-3 py-1 capitalize"
+                                className="font-rubik-400 inline-flex items-center text-xs text-[#2b7272] bg-white rounded-full border border-[#2b7272] px-2.5 py-0.5 capitalize"
                             >
                                 {tag.name}
                                 <button
