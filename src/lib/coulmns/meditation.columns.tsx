@@ -5,13 +5,13 @@ import { Volume2 } from "lucide-react";
 export const mediationColumns: ColumnDef<any>[] = [
     {
         accessorKey: "title",
-        header: () => < div className="text-[#2B7272]" >Title</div>,
-        cell: ({ row }) => <div className="font-medium w-[200px]">
-            <p className="capitalize truncate overflow-hidden whitespace-nowrap">{row.original.title}</p>
+        size: 200,
+        header: () => <div className="text-[#2B7272]">Title</div>,
+        cell: ({ row }) => <div className="font-medium">
+            <p className="capitalize truncate max-w-[190px]">{row.original.title}</p>
             <Badge
                 variant="outline"
-                className={`border ${!row.original.isPremium ? "border-[#2B7272] text-[#2B7272]" : "border-yellow-600 text-yellow-600"
-                    } font-rubik-400 rounded-2xl mt-1`}
+                className={`border ${!row.original.isPremium ? "border-[#2B7272] text-[#2B7272]" : "border-yellow-600 text-yellow-600"} font-rubik-400 rounded-2xl mt-1`}
             >
                 {!row.original.isPremium ? "Free" : "Premium"}
             </Badge>
@@ -19,12 +19,14 @@ export const mediationColumns: ColumnDef<any>[] = [
     },
     {
         accessorKey: "category",
-        header: () => < div className="text-[#2B7272] min-w-[220px]" >Category</div>,
+        size: 140,
+        header: () => <div className="text-[#2B7272]">Category</div>,
         cell: ({ row }) => row.original.category?.name ?? "-",
     },
     {
         accessorKey: "subcategory",
-        header: () => <div className="text-[#2B7272] px-3">Sub Category</div>,
+        size: 140,
+        header: () => <div className="text-[#2B7272]">Sub Category</div>,
         cell: ({ row }) => (
             <Badge
                 variant="outline"
@@ -36,7 +38,8 @@ export const mediationColumns: ColumnDef<any>[] = [
     },
     {
         accessorKey: "Duration",
-        header: () => <div className="text-[#2B7272] px-3 text-center">Duration</div>,
+        size: 90,
+        header: () => <div className="text-[#2B7272]">Duration</div>,
         cell: ({ row }) => {
             const totalSeconds = Number(row.original.duration)
             const minutes = String(Math.floor(totalSeconds)).padStart(2, "0")
@@ -46,7 +49,8 @@ export const mediationColumns: ColumnDef<any>[] = [
     },
     {
         accessorKey: "link",
-        header: () => <div className="text-[#2B7272] w-[100px]">Type</div>,
+        size: 100,
+        header: () => <div className="text-[#2B7272]">Type</div>,
         cell: ({ row }) => (
             <Badge
                 variant="outline"
@@ -59,6 +63,7 @@ export const mediationColumns: ColumnDef<any>[] = [
     },
     {
         accessorKey: "tags",
+        size: 160,
         header: () => <div className="text-[#2B7272]">Tags</div>,
         cell: ({ row }) => {
             const tags = row.original.meditationTags;
@@ -84,7 +89,8 @@ export const mediationColumns: ColumnDef<any>[] = [
     },
     {
         accessorKey: "active",
-        header: ({ column }) => (
+        size: 90,
+        header: () => (
             <div className="text-[#2B7272]">Active</div>
         ),
         cell: ({ row }) => {
@@ -95,27 +101,30 @@ export const mediationColumns: ColumnDef<any>[] = [
     },
     {
         accessorKey: "scheduledAt",
-        header: () => <div className="text-[#2B7272]">Scheduled Date</div>,
+        size: 150,
+        header: () => <div className="text-[#2B7272]">Scheduled</div>,
         cell: ({ row }) => {
             const scheduledAt: any = row.getValue("scheduledAt");
-            if (!scheduledAt) return <div>Not Scheduled</div>; // handle missing date
-
-            const date = new Date(scheduledAt);
-            return (
-                <div>
-                    {date.toLocaleDateString()}{" "}
-                    {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </div>
-            );
+            if (!scheduledAt) return <div className="text-gray-400 italic">—</div>;
+            const d = new Date(scheduledAt);
+            const dd = String(d.getDate()).padStart(2, "0");
+            const mm = String(d.getMonth() + 1).padStart(2, "0");
+            const yyyy = d.getFullYear();
+            const hh = String(d.getHours()).padStart(2, "0");
+            const min = String(d.getMinutes()).padStart(2, "0");
+            return <div>{dd}/{mm}/{yyyy} {hh}:{min}</div>;
         },
-
     },
     {
         accessorKey: "createdAt",
-        header: () => <div className="text-[#2B7272]">Added Date</div>,
+        size: 120,
+        header: () => <div className="text-[#2B7272]">Added</div>,
         cell: ({ row }) => {
-            const date = new Date(row.getValue("createdAt"))
-            return <div>{date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+            const d = new Date(row.getValue("createdAt"));
+            const dd = String(d.getDate()).padStart(2, "0");
+            const mm = String(d.getMonth() + 1).padStart(2, "0");
+            const yyyy = d.getFullYear();
+            return <div>{dd}/{mm}/{yyyy}</div>;
         },
     },
 ]
