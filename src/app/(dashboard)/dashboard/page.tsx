@@ -1,23 +1,68 @@
-import React from 'react'
+"use client";
+
+import React, { useEffect, useState } from "react";
 import {
-    Bell,
     BarChart3,
     Users,
-    Settings,
-    LogOut,
     Plus,
     MessageSquare,
     Crown,
     Eye,
-    UserCheck,
-    ChevronDown,
-    ArrowRight,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import Link from 'next/link'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import Link from "next/link";
+import { fetcher } from "@/lib/fetcher";
+import { dashboardApi } from "@/lib/api";
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend,
+    ResponsiveContainer,
+} from "recharts";
+
+interface DailyActivity {
+    day: string;
+    freeUsers: number;
+    premiumUsers: number;
+}
+
+interface DashboardStats {
+    users: { total: number; active: number; newLast30Days: number; newToday: number };
+    content: { meditations: number };
+    subscriptions: { active: number; newToday: number };
+    revenue: { total: number };
+    mostPlayed: { title: string; playCount: number } | null;
+    dailyActivity: DailyActivity[];
+}
 
 function Dashboard() {
+    const [stats, setStats] = useState<DashboardStats | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetcher<{ success: boolean; data: DashboardStats }>(dashboardApi.getStats)
+            .then((res) => setStats(res.data))
+            .catch(console.error)
+            .finally(() => setLoading(false));
+    }, []);
+
+    const chartData = loading
+        ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => ({
+            day,
+            "Free Users": 0,
+            "Premium Users": 0,
+        }))
+        : (stats?.dailyActivity ?? []).map((d) => ({
+            day: d.day,
+            "Free Users": d.freeUsers,
+            "Premium Users": d.premiumUsers,
+        }));
+
     return (
         <div className="flex font-rubik-400 w-full">
             <div className="flex-1 p-6">
@@ -29,19 +74,23 @@ function Dashboard() {
 
                 {/* Quick Stats */}
                 <div className="mb-6 bg-white p-5 rounded-3xl">
-                    <div className="flex items-center gap-2 mb-4 ">
+                    <div className="flex items-center gap-2 mb-4">
                         <BarChart3 size={20} className="text-[#013913]" />
                         <h2 className="text-lg font-medium text-[#013913]">Quick Stats</h2>
                     </div>
                     <div className="grid grid-cols-4 gap-2 xl:gap-4 rounded-3xl">
                         <Card className="bg-[#8e4692] text-white border-0 rounded-4xl h-[180px]">
                             <CardContent className="p-6">
-                                <div className=" items-center gap-2 mb-2 flex justify-center">
+                                <div className="items-center gap-2 mb-2 flex justify-center">
                                     <Users size={20} />
-                                    <span className="text-sm opacity-90 ">Total Users</span>
+                                    <span className="text-sm opacity-90">Total Users</span>
                                 </div>
-                                <div className="text-4xl font-rubik-500 mb-1 text-center">12,345</div>
-                                <div className="text-sm opacity-75 text-center">200+ today</div>
+                                <div className="text-4xl font-rubik-500 mb-1 text-center">
+                                    {loading ? "—" : (stats?.users.total ?? 0).toLocaleString()}
+                                </div>
+                                <div className="text-sm opacity-75 text-center">
+                                    {loading ? "" : `${stats?.users.newToday ?? 0}+ today`}
+                                </div>
                             </CardContent>
                         </Card>
                         <Card className="bg-[#545c90] text-white border-0 rounded-4xl h-[180px]">
@@ -50,88 +99,94 @@ function Dashboard() {
                                     <Crown size={20} />
                                     <span className="text-sm opacity-90">Premium Users</span>
                                 </div>
-                                <div className="text-3xl font-bold mb-1 text-center">1,289</div>
-                                <div className="text-sm opacity-75 text-center">80+ today</div>
+                                <div className="text-3xl font-bold mb-1 text-center">
+                                    {loading ? "—" : (stats?.subscriptions.active ?? 0).toLocaleString()}
+                                </div>
+                                <div className="text-sm opacity-75 text-center">
+                                    {loading ? "" : `${stats?.subscriptions.newToday ?? 0}+ today`}
+                                </div>
                             </CardContent>
                         </Card>
-                        <Card className="bg-[#578957] text-white border-0  rounded-4xl h-[180px]">
+                        <Card className="bg-[#578957] text-white border-0 rounded-4xl h-[180px]">
                             <CardContent className="p-6">
                                 <div className="flex items-center gap-2 mb-2 justify-center">
                                     <BarChart3 size={20} />
                                     <span className="text-sm opacity-90">Contents Uploaded</span>
                                 </div>
-                                <div className="text-3xl font-bold text-center">104</div>
+                                <div className="text-3xl font-bold text-center">
+                                    {loading ? "—" : (stats?.content.meditations ?? 0).toLocaleString()}
+                                </div>
                             </CardContent>
                         </Card>
-                        <Card className="bg-[#a2605b] text-white border-0  rounded-4xl h-[180px]">
+                        <Card className="bg-[#a2605b] text-white border-0 rounded-4xl h-[180px]">
                             <CardContent className="p-6">
                                 <div className="flex items-center gap-2 mb-2 justify-center">
                                     <span className="text-lg">⭐</span>
                                     <span className="text-sm opacity-90">Most Played</span>
                                 </div>
-                                <div className="text-lg font-semibold mb-2 text-center">Deep Calm at Night</div>
+                                <div className="text-lg font-semibold mb-2 text-center">
+                                    {loading ? "—" : (stats?.mostPlayed?.title ?? "N/A")}
+                                </div>
+                                {!loading && stats?.mostPlayed && (
+                                    <div className="text-sm opacity-75 text-center">
+                                        {stats.mostPlayed.playCount.toLocaleString()} plays
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
                     </div>
                 </div>
 
                 {/* Daily User Activity Chart */}
-                <div className='flex gap-2'>
-                    <div className='bg-white p-2 px-4 rounded-3xl flex-1'>
+                <div className="flex gap-2">
+                    <div className="bg-white p-4 px-6 rounded-3xl flex-1">
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-2">
-                                <span className="text-lg">📊</span>
                                 <h2 className="text-lg font-medium text-[#013913]">Daily User Activity</h2>
-                                <span className="text-sm text-[#777777]">( Last 7 Days Activity )</span>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 bg-[#f4b03c] rounded"></div>
-                                    <span className="text-sm text-[#777777]">Free Users</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 bg-[#e59ee8] rounded"></div>
-                                    <span className="text-sm text-[#777777]">Premium Users</span>
-                                </div>
+                                <span className="text-sm text-[#777777]">( Last 7 Days )</span>
                             </div>
                         </div>
-                        <div className="rounded-lg p-6">
-                            <div className="flex items-end justify-between h-64 gap-8">
-                                {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, index) => (
-                                    <div key={day} className="flex flex-col items-center gap-2 flex-1">
-                                        <div className="flex flex-col items-center gap-1 h-48">
-                                            {index < 5 ? (
-                                                <>
-                                                    <div
-                                                        className="bg-[#f4b03c] rounded-t text-white text-xs flex items-center justify-center w-12"
-                                                        style={{ height: `${120 + index * 20}px` }}
-                                                    >
-                                                        {2000 + index * 200}
-                                                    </div>
-                                                    <div
-                                                        className="bg-[#e59ee8] rounded-b text-white text-xs flex items-center justify-center w-12"
-                                                        style={{ height: `${80 + index * 15}px` }}
-                                                    >
-                                                        {800 + index * 100}
-                                                    </div>
-                                                </>
-                                            ) : (
-                                                <div className="border-2 border-dashed border-[#e4e4e4] rounded w-12 h-32"></div>
-                                            )}
-                                        </div>
-                                        <span className="text-sm text-[#777777]">{day}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                        <ResponsiveContainer width="100%" height={260}>
+                            <BarChart data={chartData} barCategoryGap="30%" barGap={4}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                                <XAxis
+                                    dataKey="day"
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fill: "#777777", fontSize: 13 }}
+                                />
+                                <YAxis
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fill: "#777777", fontSize: 12 }}
+                                    allowDecimals={false}
+                                    width={30}
+                                />
+                                <Tooltip
+                                    cursor={{ fill: "rgba(0,0,0,0.04)" }}
+                                    contentStyle={{
+                                        borderRadius: "12px",
+                                        border: "none",
+                                        boxShadow: "0 4px 16px rgba(0,0,0,0.10)",
+                                        fontSize: 13,
+                                    }}
+                                />
+                                <Legend
+                                    iconType="circle"
+                                    iconSize={10}
+                                    wrapperStyle={{ fontSize: 13, paddingTop: 12 }}
+                                />
+                                <Bar dataKey="Free Users" fill="#f4b03c" radius={[6, 6, 0, 0]} maxBarSize={36} />
+                                <Bar dataKey="Premium Users" fill="#c084e0" radius={[6, 6, 0, 0]} maxBarSize={36} />
+                            </BarChart>
+                        </ResponsiveContainer>
                     </div>
                     <div>
-                        <div className='bg-white w-80 p-2 rounded-3xl text-[#013913]'>
-                            <div className="flex items-center gap-2 mb-4 ">
+                        <div className="bg-white w-80 p-2 rounded-3xl text-[#013913]">
+                            <div className="flex items-center gap-2 mb-4">
                                 <span className="text-lg">⚡</span>
                                 <h3 className="font-medium text-[#013913]">Quick Actions</h3>
                             </div>
-
                             <div className="space-y-4">
                                 <Link href="/dashboard/meditation/add" passHref>
                                     <Button asChild variant="ghost" className="w-full justify-start gap-2 text-[#013913] hover:bg-[#f5f5f5]">
@@ -141,7 +196,6 @@ function Dashboard() {
                                         </span>
                                     </Button>
                                 </Link>
-
                                 <Link href="/feedback" passHref>
                                     <Button asChild variant="ghost" className="w-full justify-start gap-2 text-[#013913] hover:bg-[#f5f5f5]">
                                         <span>
@@ -150,7 +204,6 @@ function Dashboard() {
                                         </span>
                                     </Button>
                                 </Link>
-
                                 <Link href="/dashboard/plans" passHref>
                                     <Button asChild variant="ghost" className="w-full justify-start gap-2 text-[#013913] hover:bg-[#f5f5f5]">
                                         <span>
@@ -159,7 +212,6 @@ function Dashboard() {
                                         </span>
                                     </Button>
                                 </Link>
-
                                 <Link href="/dashboard/meditation/" passHref>
                                     <Button asChild variant="ghost" className="w-full justify-start gap-2 text-[#013913] hover:bg-[#f5f5f5]">
                                         <span>
@@ -168,7 +220,6 @@ function Dashboard() {
                                         </span>
                                     </Button>
                                 </Link>
-
                                 <Link href="/dashboard/users" passHref>
                                     <Button asChild variant="ghost" className="w-full justify-start gap-2 text-[#013913] hover:bg-[#f5f5f5]">
                                         <span>
@@ -181,9 +232,9 @@ function Dashboard() {
                         </div>
                     </div>
                 </div>
-
             </div>
-        </div >)
+        </div>
+    );
 }
 
-export default Dashboard
+export default Dashboard;

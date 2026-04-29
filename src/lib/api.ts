@@ -44,3 +44,23 @@ export const onboardingApis = {
 };
 
 export const sarLogsApi = { getAll: "/sar-log" };
+
+export const dashboardApi = {
+  getStats: "/dashboard/stats",
+};
+
+export const subscriptionApi = {
+  getPlans: "/subscriptions/plans",
+  createPlan: "/subscriptions/admin/plans",
+  updatePlan: (planId: string) => `/subscriptions/admin/plans/${planId}`,
+  deletePlan: (planId: string) => `/subscriptions/admin/plans/${planId}`,
+  toggleVisibility: (planId: string) =>
+    `/subscriptions/admin/plans/${planId}/visibility`,
+  getAdminSubscriptions: "/subscriptions/admin/subscriptions",
+  cancelSubscription: (id: string) =>
+    `/subscriptions/admin/subscriptions/${id}/cancel`,
+};
+
+export const transactionApi = {
+  getAdminTransactions: "/subscriptions/admin/transactions",
+};
