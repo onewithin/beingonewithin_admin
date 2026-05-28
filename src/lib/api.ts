@@ -11,6 +11,8 @@ export const categoryApi = {
   createCategory: "/category",
   createSubCategory: "/subcategory",
   createTag: "/tags",
+  updateCategory: (id: string) => `/category/${id}`,
+  updateSubCategory: (id: string) => `/subcategory/${id}`,
   deleteCategory: (id: string) => `/category/${id}`,
   deleteSubCategory: (id: string) => `/subcategory/${id}`,
   deleteTag: (id: string) => `/tags/${id}`,

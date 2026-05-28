@@ -31,6 +31,8 @@ import { apiUser, categoryApi, meditationApis } from '@/lib/api'
 import CreateCategory from './_components/create_category'
 import CreateSubCategory from './_components/create_subcategory'
 import CreateTags from './_components/create_tags'
+import EditCategory from './_components/edit_category'
+import EditSubCategory from './_components/edit_subcategory'
 import { useParams, useRouter } from 'next/navigation'
 import Loader from '@/components/loader'
 import { Calendar24 } from './_components/date-scheduler'
@@ -243,6 +245,22 @@ function MediationDetails() {
 
     const addSubCategory = (item: any) => {
         setSubCategories((prev: any) => [item, ...prev])
+    }
+
+    const updateCategory = (item: any) => {
+        setCategories((prev: any) => prev.map((cat: any) => cat.id === item.id ? item : cat))
+        if (selectedCategory?.id === item.id) {
+            setSelectedCategory(item)
+            setValue('category', item.name)
+        }
+    }
+
+    const updateSubCategory = (item: any) => {
+        setSubCategories((prev: any) => prev.map((sub: any) => sub.id === item.id ? item : sub))
+        if (selectedSubCategory?.id === item.id) {
+            setSelectedSubCategory(item)
+            setValue('subcategory', item.name)
+        }
     }
 
     const categoryChange = (value: string) => {
@@ -626,7 +644,10 @@ function MediationDetails() {
                                                 className="flex justify-between items-center px-2 py-1.5 text-sm hover:bg-gray-100 rounded-md m-1 capitalize font-rubik-400"
                                             >
                                                 <span className="cursor-pointer flex-1" onClick={() => onSelectCategory(item)}>{item.name}</span>
-                                                <button type="button" onClick={(e) => { e.stopPropagation(); setPendingDelete({ type: 'category', id: item.id, name: item.name }) }} className="text-red-400 hover:text-red-600 p-0.5 rounded flex-shrink-0"><Trash2 size={13} /></button>
+                                                <div className="flex gap-1 items-center">
+                                                    <EditCategory category={item} updateCategory={updateCategory} />
+                                                    <button type="button" onClick={(e) => { e.stopPropagation(); setPendingDelete({ type: 'category', id: item.id, name: item.name }) }} className="text-red-400 hover:text-red-600 p-0.5 rounded flex-shrink-0"><Trash2 size={13} /></button>
+                                                </div>
                                             </div>
                                         ))
                                     ) : (
@@ -674,7 +695,10 @@ function MediationDetails() {
                                                     className="flex justify-between items-center px-2 py-1.5 text-sm hover:bg-gray-100 rounded-md m-1 capitalize font-rubik-400"
                                                 >
                                                     <span className="cursor-pointer flex-1" onClick={() => onSelectSubCategory(item)}>{item.name}</span>
-                                                    <button type="button" onClick={(e) => { e.stopPropagation(); setPendingDelete({ type: 'subcategory', id: item.id, name: item.name }) }} className="text-red-400 hover:text-red-600 p-0.5 rounded flex-shrink-0"><Trash2 size={13} /></button>
+                                                    <div className="flex gap-1 items-center">
+                                                        <EditSubCategory subcategory={item} updateSubCategory={updateSubCategory} />
+                                                        <button type="button" onClick={(e) => { e.stopPropagation(); setPendingDelete({ type: 'subcategory', id: item.id, name: item.name }) }} className="text-red-400 hover:text-red-600 p-0.5 rounded flex-shrink-0"><Trash2 size={13} /></button>
+                                                    </div>
                                                 </div>
                                             ))
                                         )}
