@@ -38,16 +38,18 @@ function EditCategory({
     const iconInputRef = useRef<HTMLInputElement | null>(null)
     const [previewUrl, setPreviewUrl] = useState<string | null>(category.backgroundImage || null)
     const [iconPreviewUrl, setIconPreviewUrl] = useState<string | null>(category.icon || null)
+    const [bgFile, setBgFile] = useState<File | null>(null)
+    const [iconFile, setIconFile] = useState<File | null>(null)
     const inputRef = useRef<HTMLInputElement | null>(null)
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
-        if (file) setPreviewUrl(URL.createObjectURL(file))
+        if (file) { setPreviewUrl(URL.createObjectURL(file)); setBgFile(file) }
     }
 
     const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
-        if (file) setIconPreviewUrl(URL.createObjectURL(file))
+        if (file) { setIconPreviewUrl(URL.createObjectURL(file)); setIconFile(file) }
     }
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
@@ -64,8 +66,8 @@ function EditCategory({
             const formData = new FormData()
             formData.append('name', data.title)
             formData.append('color', color)
-            if (fileInputRef.current?.files?.[0]) formData.append('backgroundImage', fileInputRef.current.files[0])
-            if (iconInputRef.current?.files?.[0]) formData.append('icon', iconInputRef.current.files[0])
+            if (bgFile) formData.append('backgroundImage', bgFile)
+            if (iconFile) formData.append('icon', iconFile)
 
             const res = await fetcher(categoryApi.updateCategory(category.id), { method: 'PATCH', data: formData })
             if (res) {
@@ -91,6 +93,8 @@ function EditCategory({
             setColor(category.color || '#2b7272')
             setPreviewUrl(category.backgroundImage || null)
             setIconPreviewUrl(category.icon || null)
+            setBgFile(null)
+            setIconFile(null)
         }
     }, [open, category])
 
