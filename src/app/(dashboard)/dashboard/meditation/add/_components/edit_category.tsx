@@ -22,7 +22,15 @@ type FormData = {
     title: string
 }
 
-function EditCategory({ category, updateCategory }: { category: any; updateCategory: (item: any) => void }) {
+function EditCategory({
+    category,
+    updateCategory,
+    onOpenChange
+}: {
+    category: any
+    updateCategory: (item: any) => void
+    onOpenChange?: (open: boolean) => void
+}) {
     const [open, setOpen] = useState(false)
     const [color, setColor] = useState(category.color || '#2b7272')
     const [loading, setLoading] = useState(false)
@@ -125,7 +133,13 @@ function EditCategory({ category, updateCategory }: { category: any; updateCateg
 
     return (
         <div>
-            <Dialog open={open} onOpenChange={setOpen}>
+            <Dialog
+                open={open}
+                onOpenChange={(value) => {
+                    setOpen(value)
+                    onOpenChange?.(value)
+                }}
+            >
                 <DialogTrigger asChild>
                     <Button 
                         variant="ghost" 

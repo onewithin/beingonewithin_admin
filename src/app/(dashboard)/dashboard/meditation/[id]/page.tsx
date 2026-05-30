@@ -55,6 +55,7 @@ function MediationDetails() {
     const [meditation, setMeditation] = useState<any>(null)
     const [initalLoad, setInitalLoad] = useState(true)
     const [showCategory, setShowCategory] = useState(false)
+    const [isCategoryEditOpen, setIsCategoryEditOpen] = useState(false)
     const [showedCategories, setShowCategories] = useState([])
     const [selectedCategory, setSelectedCategory] = useState<any>('')
     const [showSubCategory, setShowSubCategory] = useState(false)
@@ -410,7 +411,7 @@ function MediationDetails() {
     // Close all dropdowns on outside click
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
-            if (categoryRef.current && !categoryRef.current.contains(event.target as Node)) {
+            if (!isCategoryEditOpen && categoryRef.current && !categoryRef.current.contains(event.target as Node)) {
                 setShowCategory(false);
             }
             if (subCategoryRef.current && !subCategoryRef.current.contains(event.target as Node)) {
@@ -422,7 +423,7 @@ function MediationDetails() {
         }
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+    }, [isCategoryEditOpen]);
 
     if (initalLoad) {
         return (
@@ -645,7 +646,16 @@ function MediationDetails() {
                                             >
                                                 <span className="cursor-pointer flex-1" onClick={() => onSelectCategory(item)}>{item.name}</span>
                                                 <div className="flex gap-1 items-center">
-                                                    <EditCategory category={item} updateCategory={updateCategory} />
+                                                    <EditCategory
+                                                        category={item}
+                                                        updateCategory={updateCategory}
+                                                        onOpenChange={(open) => {
+                                                            setIsCategoryEditOpen(open)
+                                                            if (open) {
+                                                                setShowCategory(true)
+                                                            }
+                                                        }}
+                                                    />
                                                     <button type="button" onClick={(e) => { e.stopPropagation(); setPendingDelete({ type: 'category', id: item.id, name: item.name }) }} className="text-red-400 hover:text-red-600 p-0.5 rounded flex-shrink-0"><Trash2 size={13} /></button>
                                                 </div>
                                             </div>
