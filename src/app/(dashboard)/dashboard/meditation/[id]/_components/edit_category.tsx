@@ -141,9 +141,9 @@ function EditCategory({
                 }}
             >
                 <DialogTrigger asChild>
-                    <Button 
-                        variant="ghost" 
-                        size="sm" 
+                    <Button
+                        variant="ghost"
+                        size="sm"
                         className="h-7 w-7 p-0 hover:bg-blue-50 hover:text-blue-600"
                         title="Edit Category"
                     >
