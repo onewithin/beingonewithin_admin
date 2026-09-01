@@ -345,7 +345,10 @@ function MediationDetails() {
                 }
 
                 if (meditationRes.status === 'fulfilled') {
-                    const meditation = meditationRes.value as any;
+                    // Authenticated requests come back as { meditation, watchHistory };
+                    // anonymous ones return the meditation directly.
+                    const meditationPayload = meditationRes.value as any;
+                    const meditation = meditationPayload?.meditation ?? meditationPayload;
 
                     // Set form values
                     setValue('id', meditation?.id

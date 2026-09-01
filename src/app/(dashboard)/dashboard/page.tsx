@@ -5,10 +5,10 @@ import {
     Activity,
     AudioLines,
     BarChart3,
+    CalendarCheck,
     CircleDollarSign,
     Users,
     Plus,
-    MessageSquare,
     Crown,
     Eye,
     Sparkles,
@@ -204,13 +204,7 @@ function Dashboard() {
                                 <Button asChild variant="ghost" className="h-11 w-full justify-start text-[#0f403b] hover:bg-[#f2f8f7]">
                                     <Link href="/dashboard/meditation/add" className="inline-flex items-center gap-2">
                                         <Plus size={16} />
-                                        Add New Audio
-                                    </Link>
-                                </Button>
-                                <Button asChild variant="ghost" className="h-11 w-full justify-start text-[#0f403b] hover:bg-[#f2f8f7]">
-                                    <Link href="/feedback" className="inline-flex items-center gap-2">
-                                        <MessageSquare size={16} />
-                                        View Feedback
+                                        Add New Meditation
                                     </Link>
                                 </Button>
                                 <Button asChild variant="ghost" className="h-11 w-full justify-start text-[#0f403b] hover:bg-[#f2f8f7]">
@@ -223,6 +217,12 @@ function Dashboard() {
                                     <Link href="/dashboard/meditation" className="inline-flex items-center gap-2">
                                         <Eye size={16} />
                                         View All Meditations
+                                    </Link>
+                                </Button>
+                                <Button asChild variant="ghost" className="h-11 w-full justify-start text-[#0f403b] hover:bg-[#f2f8f7]">
+                                    <Link href="/dashboard/thoughts" className="inline-flex items-center gap-2">
+                                        <CalendarCheck size={16} />
+                                        View All Daily Thoughts
                                     </Link>
                                 </Button>
                                 <Button asChild variant="ghost" className="h-11 w-full justify-start text-[#0f403b] hover:bg-[#f2f8f7]">
