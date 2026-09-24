@@ -194,12 +194,12 @@ function AddMeditation() {
                             <input
                                 type="file"
                                 ref={fileInputRef}
-                                accept="audio/*"
+                                accept="audio/*,.wav"
                                 className="hidden"
                                 onChange={handleFileChange}
                             />
                             <input type="hidden" {...register("file", { required: "Audio file is required" })} />
-                            {errors.file ? < p className="text-red-500 text-sm mt-1">{errors.file.message as string}</p> : <p className='text-[#777777] text-[12px]'>Upload (MP3 or MP4)</p>
+                            {errors.file ? < p className="text-red-500 text-sm mt-1">{errors.file.message as string}</p> : <p className='text-[#777777] text-[12px]'>Upload (MP3, WAV or MP4)</p>
                             }
                         </div>
 

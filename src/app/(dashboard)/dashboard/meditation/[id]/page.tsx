@@ -523,7 +523,7 @@ function MediationDetails() {
                                 <input
                                     type="file"
                                     ref={fileInputRef}
-                                    accept="audio/*"
+                                    accept="audio/*,.wav"
                                     className="hidden"
                                     onChange={handleFileChange}
                                 />
@@ -565,7 +565,7 @@ function MediationDetails() {
                                         {/* <input
                                         type="file"
                                         ref={fileInputRef}
-                                        accept="audio/*"
+                                        accept="audio/*,.wav"
                                         className="hidden"
                                         onChange={handleFileChange}
                                     /> */}
@@ -573,7 +573,7 @@ function MediationDetails() {
                                         {errors.file ? (
                                             <p className="text-red-500 text-sm mt-1">{errors.file.message as string}</p>
                                         ) : (
-                                            <p className='text-[#777777] text-[12px]'>Upload (MP3 or MP4)</p>
+                                            <p className='text-[#777777] text-[12px]'>Upload (MP3, WAV or MP4)</p>
                                         )}
                                     </>
                                 )}

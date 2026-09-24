@@ -257,7 +257,7 @@ function ThoughtDetails() {
                             <input
                                 type="file"
                                 ref={fileInputRef}
-                                accept="audio/*"
+                                accept="audio/*,.wav"
                                 className="hidden"
                                 onChange={handleFileChange}
                             />
@@ -281,7 +281,7 @@ function ThoughtDetails() {
                                         className='w-full cursor-pointer'
                                         onClick={triggerUpload}
                                     />
-                                    <p className='text-[#777777] text-[12px]'>Upload (MP3 or MP4)</p>
+                                    <p className='text-[#777777] text-[12px]'>Upload (MP3, WAV or MP4)</p>
                                 </>
                             )}
                         </div>
