@@ -25,6 +25,14 @@ export const meditationApis = {
   deleteMeditation: (id: string) => `/meditation/${id}`,
 };
 
+// Direct-to-S3 multipart upload for large audio files
+export const uploadApi = {
+  initiate: "/upload/initiate",
+  parts: "/upload/parts",
+  complete: "/upload/complete",
+  abort: "/upload/abort",
+};
+
 export const thoughtsApi = {
   create: "/thought",
   getAll: "/thought",

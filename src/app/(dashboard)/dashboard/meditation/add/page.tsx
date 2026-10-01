@@ -27,6 +27,8 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { fetcher } from '@/lib/fetcher'
+import { useAudioUpload } from '@/hooks/use-audio-upload'
+import UploadProgressBar from '@/components/uploadProgressBar'
 import { apiUser, categoryApi, meditationApis } from '@/lib/api'
 import CreateCategory from './_components/create_category'
 import CreateSubCategory from './_components/create_subcategory'
@@ -46,6 +48,7 @@ function AddMeditation() {
     const fileInputRef = useRef<HTMLInputElement | null>(null)
     const [submitType, setSubmitType] = useState('')
     const [loading, setLoading] = useState(false)
+    const { uploadAudio, uploadProgress, isUploading } = useAudioUpload()
     const [fileName, setFileName] = useState("")
     const [showCategory, setShowCategory] = useState(false)
     const [isCategoryEditOpen, setIsCategoryEditOpen] = useState(false)
@@ -156,9 +159,10 @@ function AddMeditation() {
             formData.append("active", "true");
             formData.append("schedule", data.schedule); // assuming selectedType is like "audio"
 
+            // Audio goes straight to S3; the API only gets its key
             const audioFile = fileInputRef.current?.files?.[0];
             if (audioFile) {
-                formData.append("audioFile", audioFile);
+                formData.append("audioFile", await uploadAudio(audioFile));
             }
 
             // Append image file (thumbnail)
@@ -167,10 +171,6 @@ function AddMeditation() {
                 formData.append("thumbnail", imageFile);
             }
 
-
-            if (data.file) {
-                formData.append("file", data.file);
-            }
 
             if (data.category) {
                 formData.append("categoryId", selectedCategory.id);
@@ -189,6 +189,7 @@ function AddMeditation() {
             }
         } catch (error) {
             console.log(error)
+            toast.error(error instanceof Error ? error.message : 'Failed to publish meditation')
         } finally {
             setLoading(false)
         }
@@ -427,6 +428,7 @@ function AddMeditation() {
                                 <input type="hidden" {...register("file", { required: "Audio file is required" })} />
                                 {errors.file ? < p className="text-red-500 text-sm mt-1">{errors.file.message as string}</p> : <p className='text-[#777777] text-[12px]'>Upload (MP3, WAV or MP4)</p>
                                 }
+                                <UploadProgressBar progress={uploadProgress} />
                             </div>
 
                             {/* Title */}
@@ -649,7 +651,7 @@ function AddMeditation() {
                         className={`w-full lg:w-44 text-white px-8 py-2 ${loading ? 'bg-[#2b7272]/50 cursor-not-allowed' : 'bg-[#2b7272] hover:bg-[#1f5d57]'
                             }`}
                     >
-                        {loading && submitType === "free" ? 'Publishing...' : 'Publish as Free'}
+                        {loading && submitType === "free" ? (isUploading ? `Uploading ${uploadProgress}%...` : 'Publishing...') : 'Publish as Free'}
                     </Button>
 
                     <Button
@@ -659,7 +661,7 @@ function AddMeditation() {
                         className={`w-full lg:w-44 text-white px-8 py-2 ${loading ? 'bg-[#fba515]/50 cursor-not-allowed' : 'bg-[#fba515] hover:bg-[#e8940f]'
                             }`}
                     >
-                        {loading && submitType === "premium" ? 'Publishing...' : 'Publish as Premium'}
+                        {loading && submitType === "premium" ? (isUploading ? `Uploading ${uploadProgress}%...` : 'Publishing...') : 'Publish as Premium'}
                     </Button>
                 </div>
             </form >

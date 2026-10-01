@@ -27,6 +27,8 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { fetcher } from '@/lib/fetcher'
+import { useAudioUpload } from '@/hooks/use-audio-upload'
+import UploadProgressBar from '@/components/uploadProgressBar'
 import { apiUser, categoryApi, meditationApis } from '@/lib/api'
 import CreateCategory from './_components/create_category'
 import CreateSubCategory from './_components/create_subcategory'
@@ -51,6 +53,7 @@ function MediationDetails() {
     const fileInputRef = useRef<HTMLInputElement | null>(null)
     const [submitType, setSubmitType] = useState('')
     const [loading, setLoading] = useState(false)
+    const { uploadAudio, uploadProgress, isUploading } = useAudioUpload()
     const [fileName, setFileName] = useState("")
     const [meditation, setMeditation] = useState<any>(null)
     const [initalLoad, setInitalLoad] = useState(true)
@@ -164,19 +167,16 @@ function MediationDetails() {
             formData.append("active", "true");
             formData.append("type", selectedType); // assuming selectedType is like "audio"
 
+            // Audio goes straight to S3; the API only gets its key
             const audioFile = fileInputRef.current?.files?.[0];
             if (audioFile) {
-                formData.append("audioFile", audioFile);
+                formData.append("audioFile", await uploadAudio(audioFile));
             }
 
             // Append image file (thumbnail)
             const imageFile = imageInputRef.current?.files?.[0];
             if (imageFile) {
                 formData.append("thumbnail", imageFile);
-            }
-
-            if (data.file) {
-                formData.append("file", data.file);
             }
 
 
@@ -213,6 +213,7 @@ function MediationDetails() {
             }
         } catch (error) {
             console.log(error)
+            toast.error(error instanceof Error ? error.message : 'Failed to update meditation')
         } finally {
             setLoading(false)
         }
@@ -539,6 +540,7 @@ function MediationDetails() {
                                         Your browser does not support the audio element.
                                     </audio> */}
                                         <HLSAudio fileName={fileName} />
+                                        <UploadProgressBar progress={uploadProgress} />
                                         {/* Button to replace audio */}
                                         <button
                                             type="button"
@@ -841,7 +843,7 @@ function MediationDetails() {
                             }`}
                         onClick={() => setSubmitType('update')}
                     >
-                        {loading && submitType == 'update' ? 'Updating...' : 'Update Meditation'}
+                        {loading && submitType == 'update' ? (isUploading ? `Uploading ${uploadProgress}%...` : 'Updating...') : 'Update Meditation'}
                     </Button>
                 </div>
             </form >

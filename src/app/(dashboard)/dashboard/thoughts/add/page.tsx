@@ -15,6 +15,9 @@ import {
 } from "lucide-react"
 import { Label } from '@/components/ui/label'
 import { fetcher } from '@/lib/fetcher'
+import { toast } from 'sonner'
+import { useAudioUpload } from '@/hooks/use-audio-upload'
+import UploadProgressBar from '@/components/uploadProgressBar'
 import { apiUser, categoryApi, meditationApis, thoughtsApi } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import { Calendar24 } from './_components/date-selector'
@@ -26,6 +29,7 @@ function AddMeditation() {
     const [submitType, setSubmitType] = useState('')
     const [loading, setLoading] = useState(false)
     const [fileName, setFileName] = useState("")
+    const { uploadAudio, uploadProgress, isUploading } = useAudioUpload()
 
     const { register, handleSubmit, reset, setValue, setError, formState: { errors } } = useForm()
 
@@ -87,11 +91,6 @@ function AddMeditation() {
             formData.append("description", data.description);
             formData.append("duration", data.duration);
 
-            const audioFile = fileInputRef.current?.files?.[0];
-            if (audioFile) {
-                formData.append("link", audioFile);
-            }
-
             // Append image file (thumbnail)
             const imageFile = imageInputRef.current?.files?.[0];
             if (imageFile) {
@@ -106,15 +105,25 @@ function AddMeditation() {
                         type: 'manual',
                         message: 'Scheduled date and time is required.',
                     });
+                    return
                 }
                 formData.append("scheduledAt", data.schedule.toString());
             }
+
+            // Audio goes straight to S3 (after validation, so a big upload
+            // isn't wasted); the API only gets its key
+            const audioFile = fileInputRef.current?.files?.[0];
+            if (audioFile) {
+                formData.append("link", await uploadAudio(audioFile));
+            }
+
             const res: any = await fetcher(thoughtsApi.create, { method: 'POST', data: formData });
             if (res?.success) {
                 router.push('/dashboard/thoughts')
             }
         } catch (error) {
             console.log(error)
+            toast.error(error instanceof Error ? error.message : 'Failed to save thought')
         } finally {
             setLoading(false)
         }
@@ -201,6 +210,7 @@ function AddMeditation() {
                             <input type="hidden" {...register("file", { required: "Audio file is required" })} />
                             {errors.file ? < p className="text-red-500 text-sm mt-1">{errors.file.message as string}</p> : <p className='text-[#777777] text-[12px]'>Upload (MP3, WAV or MP4)</p>
                             }
+                            <UploadProgressBar progress={uploadProgress} />
                         </div>
 
                         {/* Title */}
@@ -266,7 +276,7 @@ function AddMeditation() {
                     className={` text-white px-8 py-2 ${loading ? 'bg-[#2b7272]/50 cursor-not-allowed' : 'bg-[#2b7272] hover:bg-[#1f5d57]'
                         }`}
                 >
-                    {loading && submitType === "now" ? 'Posting...' : 'Post Now'}
+                    {loading && submitType === "now" ? (isUploading ? `Uploading ${uploadProgress}%...` : 'Posting...') : 'Post Now'}
                 </Button>
 
                 <Button
@@ -276,7 +286,7 @@ function AddMeditation() {
                     className={` text-white px-8 py-2 ${loading ? 'bg-[#fba515]/50 cursor-not-allowed' : 'bg-[#fba515] hover:bg-[#e8940f]'
                         }`}
                 >
-                    {loading && submitType === "premium" ? 'Scheduling...' : 'Save and Schedule'}
+                    {loading && submitType === "schedule" ? (isUploading ? `Uploading ${uploadProgress}%...` : 'Scheduling...') : 'Save and Schedule'}
                 </Button>
             </div >
         </form >
