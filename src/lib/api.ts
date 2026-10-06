@@ -23,14 +23,8 @@ export const meditationApis = {
   getMediation: (id: string) => `/meditation/${id}`,
   updateMeditaion: (id: string) => `/meditation/${id}`,
   deleteMeditation: (id: string) => `/meditation/${id}`,
-};
-
-// Direct-to-S3 multipart upload for large audio files
-export const uploadApi = {
-  initiate: "/upload/initiate",
-  parts: "/upload/parts",
-  complete: "/upload/complete",
-  abort: "/upload/abort",
+  // Presigned S3 PUT URL for direct-to-S3 audio upload
+  presignedUrl: "/meditation/presigned-url",
 };
 
 export const thoughtsApi = {
