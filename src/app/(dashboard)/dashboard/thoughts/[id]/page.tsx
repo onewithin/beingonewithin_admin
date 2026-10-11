@@ -34,7 +34,7 @@ function ThoughtDetails() {
     const [loading, setLoading] = useState(false)
     const [submitType, setSubmitType] = useState('')
     const [fileName, setFileName] = useState('')
-    const { uploadAudio, uploadProgress, isUploading } = useAudioUpload()
+    const { uploadAudio, uploadProgress, uploadStats, isUploading } = useAudioUpload()
     const [imagePreview, setImagePreview] = useState<string | null>(null)
 
     const fileInputRef = useRef<HTMLInputElement | null>(null)
@@ -270,7 +270,7 @@ function ThoughtDetails() {
                             {fileName ? (
                                 <div className="flex flex-col gap-2">
                                     <HLSAudio fileName={fileName} />
-                                    <UploadProgressBar progress={uploadProgress} />
+                                    <UploadProgressBar progress={uploadProgress} stats={uploadStats} />
                                     <button
                                         type="button"
                                         onClick={triggerUpload}

@@ -29,7 +29,7 @@ function AddMeditation() {
     const [submitType, setSubmitType] = useState('')
     const [loading, setLoading] = useState(false)
     const [fileName, setFileName] = useState("")
-    const { uploadAudio, uploadProgress, isUploading } = useAudioUpload()
+    const { uploadAudio, uploadProgress, uploadStats, isUploading } = useAudioUpload()
 
     const { register, handleSubmit, reset, setValue, setError, formState: { errors } } = useForm()
 
@@ -210,7 +210,7 @@ function AddMeditation() {
                             <input type="hidden" {...register("file", { required: "Audio file is required" })} />
                             {errors.file ? < p className="text-red-500 text-sm mt-1">{errors.file.message as string}</p> : <p className='text-[#777777] text-[12px]'>Upload (MP3, WAV or MP4)</p>
                             }
-                            <UploadProgressBar progress={uploadProgress} />
+                            <UploadProgressBar progress={uploadProgress} stats={uploadStats} />
                         </div>
 
                         {/* Title */}

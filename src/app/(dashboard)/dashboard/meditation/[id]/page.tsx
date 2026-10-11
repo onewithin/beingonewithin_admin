@@ -53,7 +53,7 @@ function MediationDetails() {
     const fileInputRef = useRef<HTMLInputElement | null>(null)
     const [submitType, setSubmitType] = useState('')
     const [loading, setLoading] = useState(false)
-    const { uploadAudio, uploadProgress, isUploading } = useAudioUpload()
+    const { uploadAudio, uploadProgress, uploadStats, isUploading } = useAudioUpload()
     const [fileName, setFileName] = useState("")
     const [meditation, setMeditation] = useState<any>(null)
     const [initalLoad, setInitalLoad] = useState(true)
@@ -540,7 +540,7 @@ function MediationDetails() {
                                         Your browser does not support the audio element.
                                     </audio> */}
                                         <HLSAudio fileName={fileName} />
-                                        <UploadProgressBar progress={uploadProgress} />
+                                        <UploadProgressBar progress={uploadProgress} stats={uploadStats} />
                                         {/* Button to replace audio */}
                                         <button
                                             type="button"

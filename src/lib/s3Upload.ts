@@ -7,6 +7,12 @@ interface PresignedUrlResponse {
   url: string;
 }
 
+export interface UploadProgress {
+  percent: number;
+  loaded: number; // bytes sent so far
+  total: number; // file size in bytes
+}
+
 /**
  * Uploads a file straight to S3 with a presigned URL, so large audio never
  * passes through the API server. Resolves with the S3 key (audio/tmp/...) to
@@ -14,7 +20,7 @@ interface PresignedUrlResponse {
  */
 export async function uploadAudioToS3(
   file: File,
-  onProgress?: (percent: number) => void,
+  onProgress?: (progress: UploadProgress) => void,
 ): Promise<string> {
   if (file.size === 0) throw new Error("The selected audio file is empty");
 
@@ -26,12 +32,21 @@ export async function uploadAudioToS3(
     { method: "GET", params: { fileName: file.name, fileType } },
   );
 
+  // An API without the presigned-url route falls through to GET /meditation/:id
+  if (!presignedUrl || !key) {
+    throw new Error("Could not get an upload URL from the server. Is the API up to date?");
+  }
+
   await putFile(presignedUrl, file, fileType, (loaded) => {
-    // Hold at 99 until S3 confirms the upload
-    onProgress?.(Math.min(99, Math.floor((loaded / file.size) * 100)));
+    onProgress?.({
+      // Hold at 99 until S3 confirms the upload
+      percent: Math.min(99, Math.floor((loaded / file.size) * 100)),
+      loaded,
+      total: file.size,
+    });
   });
 
-  onProgress?.(100);
+  onProgress?.({ percent: 100, loaded: file.size, total: file.size });
   return key;
 }
 
