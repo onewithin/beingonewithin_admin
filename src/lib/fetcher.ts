@@ -57,7 +57,10 @@ export async function fetcher<T>(
       signOut({ callbackUrl: "/login" });
     }
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || `Request failed ${res.status}`);
+    // Some routes (e.g. meditation presigned-url/create) reply with `error` + `details`
+    throw new Error(
+      err.message || err.details || err.error || `Request failed ${res.status}`,
+    );
   }
 
   return res.json();

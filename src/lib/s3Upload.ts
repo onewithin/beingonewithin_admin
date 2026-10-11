@@ -49,7 +49,9 @@ function putFile(
     xhr.upload.onprogress = (event) => onProgress(event.loaded);
     xhr.onload = () => {
       if (xhr.status < 200 || xhr.status >= 300) {
-        reject(new Error(`Audio upload failed (status ${xhr.status})`));
+        // S3 replies with an XML error body, e.g. <Code>SignatureDoesNotMatch</Code>
+        const code = xhr.responseText?.match(/<Code>([^<]+)<\/Code>/)?.[1];
+        reject(new Error(`Audio upload failed (status ${xhr.status}${code ? `: ${code}` : ""})`));
         return;
       }
       resolve();
